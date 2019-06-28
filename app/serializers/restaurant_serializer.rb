@@ -6,4 +6,7 @@ class RestaurantSerializer < ActiveModel::Serializer
   attribute :address do
     { name: object.address, latitud: object.latitud, longitud: object.longitud }
   end
+  attribute :image_url do
+    object.image.attached? ? Rails.application.routes.url_helpers.rails_blob_path(object.image, only_path: true) : ''
+  end
 end
