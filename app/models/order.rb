@@ -2,17 +2,18 @@
 class Order < ApplicationRecord
   belongs_to :user
   belongs_to :restaurant
-  has_many :order_items
+  has_many :order_items, dependent: :destroy
   accepts_nested_attributes_for :order_items
 
-  before_create :calculate_price
+  after_save :calculate_price, unless: ->(order) { order.total_price? }
 
   private
 
   def calculate_price
     order_items_list = order_items.includes(:menu_item)
-    self.total_price = order_items_list.reduce(0) do |sum, order_item|
+    result = order_items_list.reduce(0) do |sum, order_item|
       sum + order_item.menu_item.price * order_item.quantity
     end
+    update(total_price: result)
   end
 end
